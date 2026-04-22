@@ -1,0 +1,41 @@
+:root {
+  --bg: #F4F1EC;
+  --surface: #FDFCFA;
+  --mist: #EAE6DF;
+  --ink: #2C2925;
+  --ink-soft: #5A5550;
+  --moss: #7A8C76;
+  --blush: #C89090;
+  --sand: #C4A882;
+  --warm-white: #FFFEFB;
+  --border: #E2DDD6;
+  --shadow: 0 2px 24px rgba(44, 41, 37, 0.07);
+  --bubble-user: #3D3830;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
