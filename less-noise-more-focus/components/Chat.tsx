@@ -167,7 +167,24 @@ export default function Chat() {
           </div>
         )}
       </div>
+.startAgainBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  margin-left: auto;
+  white-space: nowrap;
+}
 
+.startAgainBtn:hover {
+  background: var(--mist);
+  color: var(--ink);
+}
       {/* Input */}
       <footer className={styles.footer}>
         <div className={styles.inputRow}>
