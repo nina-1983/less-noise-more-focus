@@ -16,7 +16,6 @@ const STARTERS = [
 ]
 
 function formatLine(line: string, key: number) {
-  // Parse **bold** within a line
   const parts = line.split(/(\*\*.*?\*\*)/)
   const formatted = parts.map((part, j) => {
     if (part.startsWith('**') && part.endsWith('**')) {
@@ -46,12 +45,12 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const chatRef = useRef<HTMLDivElement>(null)
+  const chatOuterRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight
+    if (chatOuterRef.current) {
+      chatOuterRef.current.scrollTop = chatOuterRef.current.scrollHeight
     }
   }, [messages, loading])
 
@@ -60,6 +59,12 @@ export default function Chat() {
     if (!el) return
     el.style.height = 'auto'
     el.style.height = Math.min(el.scrollHeight, 160) + 'px'
+  }
+
+  function startAgain() {
+    setMessages([])
+    setInput('')
+    if (textareaRef.current) textareaRef.current.style.height = 'auto'
   }
 
   async function send(text: string) {
@@ -105,114 +110,112 @@ export default function Chat() {
 
   return (
     <div className={styles.shell}>
+
       {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.logoMark}>🌿</div>
-        <div className={styles.headerText}>
-          <h1>Less Noise, More Focus</h1>
-          <p>Reset your day — one thing at a time</p>
+      <div className={styles.headerOuter}>
+        <div className={styles.headerInner}>
+          <div className={styles.logoMark}>🌿</div>
+          <div className={styles.headerText}>
+            <h1>Less Noise, More Focus</h1>
+            <p>Reset your day — one thing at a time</p>
+          </div>
+          {messages.length > 0 && (
+            <button className={styles.startAgainBtn} onClick={startAgain}>
+              Start again
+            </button>
+          )}
+          <div className={styles.breatheDot} />
         </div>
-        <div className={styles.breatheDot} />
-      </header>
+      </div>
 
       {/* Chat */}
-      <div className={styles.chat} ref={chatRef}>
-        {/* Welcome card */}
-        {messages.length === 0 && (
-          <div className={styles.welcomeCard}>
-            <div className={styles.eyebrow}>Your calm in the chaos</div>
-            <h2>
-              What&apos;s on your mind <em>right now?</em>
-            </h2>
-            <p>
-              You don&apos;t need to have it together to start. Drop everything that&apos;s
-              in your head — messy, unorganised, half-thought — and we&apos;ll find your
-              one clear focus together.
-            </p>
-            <div className={styles.divider} />
-            <div className={styles.chips}>
-              {STARTERS.map((s) => (
-                <button key={s} className={styles.chip} onClick={() => send(s)}>
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+      <div className={styles.chatOuter} ref={chatOuterRef}>
+        <div className={styles.chat}>
 
-        {/* Messages */}
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''}`}
-          >
-            <div className={`${styles.avatar} ${msg.role === 'user' ? styles.userAvatar : styles.botAvatar}`}>
-              {msg.role === 'user' ? 'You' : '🌿'}
-            </div>
-            <div className={`${styles.bubble} ${msg.role === 'user' ? styles.userBubble : styles.botBubble}`}>
-              {formatMessage(msg.content)}
-            </div>
-          </div>
-        ))}
-
-        {/* Typing indicator */}
-        {loading && (
-          <div className={styles.messageRow}>
-            <div className={`${styles.avatar} ${styles.botAvatar}`}>🌿</div>
-            <div className={`${styles.bubble} ${styles.botBubble}`}>
-              <div className={styles.typing}>
-                <span /><span /><span />
+          {/* Welcome card */}
+          {messages.length === 0 && (
+            <div className={styles.welcomeCard}>
+              <div className={styles.eyebrow}>Your calm in the chaos</div>
+              <h2>
+                What&apos;s on your mind <em>right now?</em>
+              </h2>
+              <p>
+                You don&apos;t need to have it together to start. Drop everything that&apos;s
+                in your head — messy, unorganised, half-thought — and we&apos;ll find your
+                one clear focus together.
+              </p>
+              <div className={styles.divider} />
+              <div className={styles.chips}>
+                {STARTERS.map((s) => (
+                  <button key={s} className={styles.chip} onClick={() => send(s)}>
+                    {s}
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
-        )}
-      </div>
-.startAgainBtn {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 12px;
-  color: var(--ink-soft);
-  cursor: pointer;
-  transition: background 0.18s, color 0.18s;
-  margin-left: auto;
-  white-space: nowrap;
-}
+          )}
 
-.startAgainBtn:hover {
-  background: var(--mist);
-  color: var(--ink);
-}
-      {/* Input */}
-      <footer className={styles.footer}>
-        <div className={styles.inputRow}>
-          <textarea
-            ref={textareaRef}
-            className={styles.input}
-            placeholder="What's on your mind today…"
-            value={input}
-            onChange={(e) => {
-              setInput(e.target.value)
-              autoResize()
-            }}
-            onKeyDown={handleKey}
-            rows={1}
-          />
-          <button
-            className={styles.sendBtn}
-            onClick={() => send(input)}
-            disabled={loading || !input.trim()}
-            aria-label="Send"
-          >
-            <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-            </svg>
-          </button>
+          {/* Messages */}
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''}`}
+            >
+              <div className={`${styles.avatar} ${msg.role === 'user' ? styles.userAvatar : styles.botAvatar}`}>
+                {msg.role === 'user' ? 'You' : '🌿'}
+              </div>
+              <div className={`${styles.bubble} ${msg.role === 'user' ? styles.userBubble : styles.botBubble}`}>
+                {formatMessage(msg.content)}
+              </div>
+            </div>
+          ))}
+
+          {/* Typing indicator */}
+          {loading && (
+            <div className={styles.messageRow}>
+              <div className={`${styles.avatar} ${styles.botAvatar}`}>🌿</div>
+              <div className={`${styles.bubble} ${styles.botBubble}`}>
+                <div className={styles.typing}>
+                  <span /><span /><span />
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
-        <div className={styles.hint}>Enter to send · Shift+Enter for new line</div>
-      </footer>
+      </div>
+
+      {/* Footer */}
+      <div className={styles.footerOuter}>
+        <div className={styles.footerInner}>
+          <div className={styles.inputRow}>
+            <textarea
+              ref={textareaRef}
+              className={styles.input}
+              placeholder="What's on your mind today…"
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value)
+                autoResize()
+              }}
+              onKeyDown={handleKey}
+              rows={1}
+            />
+            <button
+              className={styles.sendBtn}
+              onClick={() => send(input)}
+              disabled={loading || !input.trim()}
+              aria-label="Send"
+            >
+              <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+              </svg>
+            </button>
+          </div>
+          <div className={styles.hint}>Enter to send · Shift+Enter for new line</div>
+        </div>
+      </div>
+
     </div>
   )
 }
