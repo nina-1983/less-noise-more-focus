@@ -15,27 +15,30 @@ const STARTERS = [
   "I only have an hour. What should I focus on?",
 ]
 
+function formatLine(line: string, key: number) {
+  // Parse **bold** within a line
+  const parts = line.split(/(\*\*.*?\*\*)/)
+  const formatted = parts.map((part, j) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={j}>{part.slice(2, -2)}</strong>
+    }
+    return <span key={j}>{part}</span>
+  })
+
+  if (line.startsWith('💡') || line.startsWith('➕') || line.startsWith('🧺')) {
+    return <p key={key} className={styles.sectionHeader}>{formatted}</p>
+  }
+  if (line.startsWith('→')) {
+    return <p key={key} className={styles.focusLine}>{formatted}</p>
+  }
+  return <p key={key}>{formatted}</p>
+}
+
 function formatMessage(text: string) {
-  // Split on double newlines for paragraphs, single newlines preserved
   const lines = text.split('\n')
   return lines.map((line, i) => {
     if (line.trim() === '') return <br key={i} />
-    // Highlight emoji-prefixed section headers
-    if (line.startsWith('💡') || line.startsWith('➕') || line.startsWith('🧺')) {
-      return (
-        <p key={i} className={styles.sectionHeader}>
-          {line}
-        </p>
-      )
-    }
-    if (line.startsWith('→')) {
-      return (
-        <p key={i} className={styles.focusLine}>
-          {line}
-        </p>
-      )
-    }
-    return <p key={i}>{line}</p>
+    return formatLine(line, i)
   })
 }
 
